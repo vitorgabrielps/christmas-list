@@ -3,32 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Presentes de Natal</title>
-    <!-- Carregando o Tailwind CSS -->
+    <title>Lista de Presentes</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Importando a fonte Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            /* Fundo natalino: gradiente verde escuro + textura de neve sutil */
-            background-color: #166534; /* green-800 */
-            background-image: linear-gradient(to bottom right, #14532d, #166534), url('https://www.toptal.com/designers/subtlepatterns/patterns/snow.png');
+            transition: background-image 0.5s ease;
         }
-        .star {
-            color: #facc15; /* yellow-400 */
-        }
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
+        .star { color: #facc15; }
+        input[type=number] { -moz-appearance: textfield; }
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
-        /* Classe de animação para erro no modal */
         .shake {
             animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
             transform: translate3d(0, 0, 0);
@@ -39,24 +30,56 @@
             30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
             40%, 60% { transform: translate3d(4px, 0, 0); }
         }
+        
+        /* --- ESTILOS DE TEMA ATUALIZADOS (CORES SUAVIZADAS) --- */
+        
+        /* Tema Natal (Listrado e mais escuro) */
+        body.theme-natal {
+            background-color: #166534; /* Fallback green-800 */
+            background-image:
+                url('https://www.toptal.com/designers/subtlepatterns/patterns/snow.png'),
+                repeating-linear-gradient(
+                    -45deg,
+                    #b91c1c, /* red-700 (era 600) */
+                    #b91c1c 20px,
+                    #e5e7eb 20px, /* gray-200 (era white) */
+                    #e5e7eb 40px,
+                    #166534 40px, /* green-800 (era 700) */
+                    #166534 60px
+                );
+        }
+        
+        /* Tema Aniversário (Cores mais escuras) */
+        body.theme-aniversario {
+            background-color: #9333ea; /* purple-700 */
+            background-image: repeating-linear-gradient(
+                -45deg,
+                #9333ea, /* purple-700 (era 600) */
+                #9333ea 40px,
+                #ca8a04 40px, /* yellow-600 (era 500) */
+                #ca8a04 80px
+            );
+        }
+        
+        /* Cor de texto escura para botões amarelos (Aniversário) */
+        .btn-aniversario {
+            color: #1f2937 !important; /* gray-800 */
+        }
     </style>
 </head>
 <body class="text-gray-800 flex items-center justify-center min-h-screen p-4">
 
-    <!-- Modal de Login (Começa escondido) -->
+    <!-- Modal de Login -->
     <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
         <div id="login-card" class="bg-gray-50 p-8 rounded-lg shadow-xl max-w-sm w-full relative">
             <button id="close-modal" class="absolute top-3 right-4 text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
             <h2 class="text-xl font-bold text-center mb-4 text-gray-900">Acesso Restrito</h2>
             <p class="text-center text-gray-500 mb-6">Insira a senha para editar a lista.</p>
-            
             <form id="login-form">
                 <label for="password" class="block text-sm font-medium mb-1 text-gray-600">Senha</label>
-                <input type="password" id="password" class="w-full bg-white border border-gray-300 text-gray-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500" required>
-                
+                <input type="password" id="password" class="w-full bg-white border border-gray-300 text-gray-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 theme-focus-ring" required>
                 <p id="error-message" class="text-red-600 text-sm mt-2 text-center hidden">Senha incorreta.</p>
-                
-                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg px-4 py-2 mt-6 transition-colors duration-200">
+                <button type="submit" class="w-full text-white font-semibold rounded-lg px-4 py-2 mt-6 transition-colors duration-200 admin-primary-btn">
                     Entrar
                 </button>
             </form>
@@ -68,38 +91,39 @@
         
         <div class="flex justify-center items-center mb-6 relative">
             <h1 class="text-3xl font-bold text-center text-gray-900">
-                Minha Lista de Presentes 🎄
+                Minha Lista de Presentes <span id="theme-emoji"></span>
             </h1>
             <button id="admin-login-button" title="Modo Admin" class="absolute right-0 text-2xl hover:opacity-75 transition-opacity">
                 🔒
             </button>
-             <!-- Botão de Sair (Admin-only, começa escondido) -->
-             <button id="logout-button" class="absolute right-0 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg px-3 py-1 transition-colors duration-200 hidden" title="Sair do modo Admin">
-                Sair
-            </button>
+            
+            <div class="absolute right-0 flex gap-2">
+                 <button id="theme-toggle-button" class="text-white text-sm font-medium rounded-lg px-3 py-1 transition-colors duration-200 hidden admin-primary-btn" title="Mudar Tema">
+                 </button>
+                 <button id="logout-button" class="text-white text-sm font-medium rounded-lg px-3 py-1 transition-colors duration-200 hidden admin-primary-btn" title="Sair do modo Admin">
+                    Sair
+                </button>
+            </div>
         </div>
 
-        <!-- Formulário para Adicionar Presente (Admin-only, começa escondido) -->
+        <!-- Formulário para Adicionar Presente -->
         <form id="gift-form" class="mb-6 hidden">
             <div class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
-                <!-- Linha 1 -->
                 <div class="md:col-span-3">
                     <label for="gift-name" class="block text-sm font-medium mb-1 text-gray-600">Presente</label>
-                    <input type="text" id="gift-name" placeholder="Ex: Fone de ouvido" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <input type="text" id="gift-name" placeholder="Ex: Fone de ouvido" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 theme-focus-ring">
                 </div>
                 <div class="md:col-span-3">
                     <label for="gift-link" class="block text-sm font-medium mb-1 text-gray-600">Link do Produto</label>
-                    <input type="url" id="gift-link" placeholder="https://..." class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <input type="url" id="gift-link" placeholder="https://..." class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 theme-focus-ring">
                 </div>
-                
-                <!-- Linha 2 -->
                 <div class="md:col-span-2">
                     <label for="gift-price" class="block text-sm font-medium mb-1 text-gray-600">Valor (R$)</label>
-                    <input type="number" id="gift-price" min="0" step="0.01" placeholder="100.00" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <input type="number" id="gift-price" min="0" step="0.01" placeholder="100.00" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 theme-focus-ring">
                 </div>
                 <div class="md:col-span-2">
                     <label for="gift-stars" class="block text-sm font-medium mb-1 text-gray-600">Estrelas</label>
-                    <select id="gift-stars" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <select id="gift-stars" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 theme-focus-ring">
                         <option value="5">5 ★</option>
                         <option value="4">4 ★</option>
                         <option value="3" selected>3 ★</option>
@@ -107,22 +131,22 @@
                         <option value="1">1 ★</option>
                     </select>
                 </div>
-                <button type="submit" class="md:col-span-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200 h-10">
+                <button type="submit" class="md:col-span-2 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200 h-10 admin-primary-btn">
                     Adicionar
                 </button>
             </div>
         </form>
 
-        <!-- Botões de Organização (Sempre visíveis) -->
+        <!-- Botões de Organização -->
         <div id="sort-controls" class="flex flex-col sm:flex-row justify-center gap-4 mb-6">
-            <button id="sort-price" class="bg-green-700 hover:bg-green-800 text-white font-medium rounded-lg px-5 py-2 transition-colors duration-200 w-full sm:w-auto">
-                Organizar por Valor
+            <button id="sort-price-asc" class="text-white font-medium rounded-lg px-5 py-2 transition-colors duration-200 w-full sm:w-auto theme-secondary-btn">
+                Organizar por Menor Valor 🔻
             </button>
-            <button id="sort-stars" class="bg-green-700 hover:bg-green-800 text-white font-medium rounded-lg px-5 py-2 transition-colors duration-200 w-full sm:w-auto">
-                Organizar por Preferência
+            <button id="sort-price-desc" class="text-white font-medium rounded-lg px-5 py-2 transition-colors duration-200 w-full sm:w-auto theme-secondary-btn">
+                Organizar por Maior Valor 🔺️
             </button>
-            <button id="sort-default" class="bg-green-700 hover:bg-green-800 text-white font-medium rounded-lg px-5 py-2 transition-colors duration-200 w-full sm:w-auto">
-                Ordem de Adição
+            <button id="sort-stars-desc" class="text-white font-medium rounded-lg px-5 py-2 transition-colors duration-200 w-full sm:w-auto theme-secondary-btn">
+                Organizar por Preferência 🌟
             </button>
         </div>
 
@@ -132,10 +156,12 @@
                 <thead class="bg-gray-100">
                     <tr>
                         <th class="px-4 py-3 text-sm font-semibold uppercase text-gray-600">Presente</th>
-                        <th class="px-4 py-3 text-sm font-semibold uppercase text-gray-600">Valor</th>
+                        <th class="px-4 py-3 text-sm font-semibold uppercase text-gray-600 text-center">
+                            Valor
+                            <span class="block text-xs font-normal normal-case text-gray-500 leading-tight">(Aproximado)</span>
+                        </th>
                         <th class="px-4 py-3 text-sm font-semibold uppercase text-gray-600">Preferência</th>
                         <th class="px-4 py-3 text-sm font-semibold uppercase text-gray-600">Link</th>
-                        <!-- Header de Ações (Admin-only, começa escondido) -->
                         <th id="actions-header" class="px-4 py-3 text-sm font-semibold uppercase text-center text-gray-600 hidden">Ações</th>
                     </tr>
                 </thead>
@@ -149,12 +175,16 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- Constantes de Armazenamento ---
+            const GIFTS_STORAGE_KEY = 'minhaListaDePresentesNatal';
+            const THEME_STORAGE_KEY = 'minhaListaDePresentesTheme';
+
             // --- Seletores do DOM ---
             const giftForm = document.getElementById('gift-form');
             const giftList = document.getElementById('gift-list');
-            const sortPriceBtn = document.getElementById('sort-price');
-            const sortStarsBtn = document.getElementById('sort-stars');
-            const sortDefaultBtn = document.getElementById('sort-default');
+            const sortPriceAscBtn = document.getElementById('sort-price-asc');
+            const sortPriceDescBtn = document.getElementById('sort-price-desc');
+            const sortStarsDescBtn = document.getElementById('sort-stars-desc');
             
             // Admin
             const adminLoginBtn = document.getElementById('admin-login-button');
@@ -167,23 +197,105 @@
             const logoutButton = document.getElementById('logout-button');
             const actionsHeader = document.getElementById('actions-header');
 
+            // --- Seletores de Tema ---
+            const themeEmoji = document.getElementById('theme-emoji');
+            const themeToggleButton = document.getElementById('theme-toggle-button');
+            const primaryBtns = document.querySelectorAll('.admin-primary-btn');
+            const secondaryBtns = document.querySelectorAll('.theme-secondary-btn');
+            const focusRings = document.querySelectorAll('.theme-focus-ring');
+
             // --- Estado da Aplicação ---
-            let gifts = [];
-            let currentSort = 'default';
+            let currentSort = 'stars_desc'; 
             let isAdmin = false;
+            let gifts = loadGiftsFromStorage();
+            let currentTheme = loadThemeFromStorage();
 
-            // --- Funções Principais ---
+            // --- Funções de Armazenamento (Gifts) ---
+            function saveGiftsToStorage() {
+                localStorage.setItem(GIFTS_STORAGE_KEY, JSON.stringify(gifts));
+            }
+            function loadGiftsFromStorage() {
+                const giftsJSON = localStorage.getItem(GIFTS_STORAGE_KEY);
+                return giftsJSON ? JSON.parse(giftsJSON) : [];
+            }
+            
+            // --- Funções de Armazenamento (Tema) ---
+            function saveThemeToStorage() {
+                localStorage.setItem(THEME_STORAGE_KEY, currentTheme);
+            }
+            function loadThemeFromStorage() {
+                return localStorage.getItem(THEME_STORAGE_KEY) || 'natal'; // Padrão é Natal
+            }
 
+            // --- Função de Lógica de Tema (ATUALIZADA) ---
+            function applyTheme(theme) {
+                currentTheme = theme;
+                saveThemeToStorage();
+
+                document.body.classList.remove('theme-natal', 'theme-aniversario');
+
+                // Classes de Botão Primário (Admin) - MAIS ESCURAS
+                const primaryFromNatal = ['bg-red-700', 'hover:bg-red-800']; // Era 600/700
+                const primaryFromNiver = ['bg-purple-700', 'hover:bg-purple-800']; // Era 600/700
+                
+                // Classes de Botão Secundário (Sort) - MAIS ESCURAS
+                const secondaryFromNatal = ['bg-green-800', 'hover:bg-green-900']; // Era 700/800
+                const secondaryFromNiver = ['bg-yellow-600', 'hover:bg-yellow-700', 'btn-aniversario']; // Era 500/600
+                
+                // Classes de Foco (Inputs) - MAIS ESCURAS
+                const focusFromNatal = 'focus:ring-red-700'; // Era 500
+                const focusFromNiver = 'focus:ring-purple-700'; // Era 500
+
+                if (theme === 'natal') {
+                    document.body.classList.add('theme-natal');
+                    themeEmoji.textContent = '🎄';
+                    themeToggleButton.textContent = 'Modo Aniversário 🥳';
+
+                    primaryBtns.forEach(btn => {
+                        btn.classList.remove(...primaryFromNiver);
+                        btn.classList.add(...primaryFromNatal);
+                    });
+                    secondaryBtns.forEach(btn => {
+                        btn.classList.remove(...secondaryFromNiver);
+                        btn.classList.add(...secondaryFromNatal);
+                    });
+                    focusRings.forEach(ring => {
+                        ring.classList.remove(focusFromNiver);
+                        ring.classList.add(focusFromNatal);
+                    });
+
+                } else { // Aniversário
+                    document.body.classList.add('theme-aniversario');
+                    themeEmoji.textContent = '🥳';
+                    themeToggleButton.textContent = 'Modo Natal 🎄';
+
+                    primaryBtns.forEach(btn => {
+                        btn.classList.remove(...primaryFromNatal);
+                        btn.classList.add(...primaryFromNiver);
+                    });
+                    secondaryBtns.forEach(btn => {
+                        btn.classList.remove(...secondaryFromNatal);
+                        btn.classList.add(...secondaryFromNiver);
+                    });
+                    focusRings.forEach(ring => {
+                        ring.classList.remove(focusFromNatal);
+                        ring.classList.add(focusFromNiver);
+                    });
+                }
+            }
+
+
+            // --- Funções Principais da Lista ---
             function renderList() {
                 giftList.innerHTML = '';
-                let sortedGifts = [...gifts];
+                let sortedGifts = [...gifts]; 
 
-                if (currentSort === 'price') {
+                if (currentSort === 'price_asc') {
                     sortedGifts.sort((a, b) => a.price - b.price);
-                } else if (currentSort === 'stars') {
+                } else if (currentSort === 'price_desc') {
+                    sortedGifts.sort((a, b) => b.price - a.price);
+                } else if (currentSort === 'stars_desc') {
                     sortedGifts.sort((a, b) => b.stars - a.stars);
-                } else {
-                    sortedGifts = gifts;
                 }
                 
                 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
@@ -195,11 +307,9 @@
                     const tr = document.createElement('tr');
                     tr.className = 'hover:bg-gray-50';
                     
-                    // Célula do Link
-                    let linkCell = '<td class="px-4 py-3 text-gray-500">-</td>'; // Padrão (sem link)
+                    let linkCell = '<td class="px-4 py-3 text-gray-500">-</td>';
                     if (gift.link) {
                         try {
-                            // Tenta validar se o link tem protocolo, se não, adiciona http
                             let url = new URL(gift.link);
                             linkCell = `
                                 <td class="px-4 py-3">
@@ -209,7 +319,6 @@
                                     </a>
                                 </td>`;
                         } catch (e) {
-                            // Se for um link inválido (ex: "google.com" sem http), adiciona
                              linkCell = `
                                 <td class="px-4 py-3">
                                     <a href="http://${gift.link}" target="_blank" rel="noopener noreferrer" 
@@ -220,7 +329,6 @@
                         }
                     }
 
-                    // Célula de Ações (Remover)
                     const actionCell = `
                         <td class="px-4 py-3 text-center ${isAdmin ? '' : 'hidden'}">
                             <button 
@@ -233,7 +341,7 @@
 
                     tr.innerHTML = `
                         <td class="px-4 py-3 font-medium text-gray-900">${gift.name}</td>
-                        <td class="px-4 py-3">${currencyFormatter.format(gift.price)}</td>
+                        <td class="px-4 py-3 text-center">${currencyFormatter.format(gift.price)}</td>
                         <td class="px-4 py-3">
                             <span class="star">${'★'.repeat(gift.stars)}</span>
                             <span class="text-gray-400">${'☆'.repeat(5 - gift.stars)}</span>
@@ -258,7 +366,6 @@
                 const linkInput = document.getElementById('gift-link');
 
                 if (!nameInput.value || !priceInput.value) {
-                    // Substituí o alert() por um foco no campo
                     nameInput.reportValidity();
                     priceInput.reportValidity();
                     return;
@@ -269,22 +376,23 @@
                     name: nameInput.value,
                     price: parseFloat(priceInput.value),
                     stars: parseInt(starsInput.value, 10),
-                    link: linkInput.value.trim() || null, // Salva null se estiver vazio
+                    link: linkInput.value.trim() || null,
                 };
 
                 gifts.push(newGift);
                 
-                // Limpa formulário
                 nameInput.value = '';
                 priceInput.value = '';
                 starsInput.value = '3';
                 linkInput.value = '';
                 
+                saveGiftsToStorage();
                 renderList();
             }
 
             function removeGift(id) {
                 gifts = gifts.filter(gift => gift.id !== id);
+                saveGiftsToStorage();
                 renderList();
             }
 
@@ -293,24 +401,16 @@
                 renderList();
             }
 
+            // --- Funções de Admin/Auth ---
             function setAdminMode(isLoggedIn) {
                 isAdmin = isLoggedIn;
-
-                if (isLoggedIn) {
-                    // Modo Admin
-                    giftForm.classList.remove('hidden');
-                    actionsHeader.classList.remove('hidden');
-                    adminLoginBtn.classList.add('hidden');
-                    logoutButton.classList.remove('hidden');
-                } else {
-                    // Modo Consulta
-                    giftForm.classList.add('hidden');
-                    actionsHeader.classList.add('hidden');
-                    adminLoginBtn.classList.remove('hidden');
-                    logoutButton.classList.add('hidden');
-                }
+                giftForm.classList.toggle('hidden', !isLoggedIn);
+                actionsHeader.classList.toggle('hidden', !isLoggedIn);
+                adminLoginBtn.classList.toggle('hidden', isLoggedIn);
+                logoutButton.classList.toggle('hidden', !isLoggedIn);
+                themeToggleButton.classList.toggle('hidden', !isLoggedIn);
                 
-                renderList(); // Re-renderiza para mostrar/esconder colunas
+                renderList();
             }
 
             function handleLogin(event) {
@@ -341,22 +441,23 @@
             });
 
             loginForm.addEventListener('submit', handleLogin);
-            
-            logoutButton.addEventListener('click', () => {
-                setAdminMode(false);
-            });
-
+            logoutButton.addEventListener('click', () => setAdminMode(false));
             giftForm.addEventListener('submit', addGift);
 
-            // Listeners de Organização (sempre ativos)
-            sortPriceBtn.addEventListener('click', () => setSort('price'));
-            sortStarsBtn.addEventListener('click', () => setSort('stars'));
-            sortDefaultBtn.addEventListener('click', () => setSort('default'));
+            sortPriceAscBtn.addEventListener('click', () => setSort('price_asc'));
+            sortPriceDescBtn.addEventListener('click', () => setSort('price_desc'));
+            sortStarsDescBtn.addEventListener('click', () => setSort('stars_desc'));
+
+            themeToggleButton.addEventListener('click', () => {
+                const newTheme = currentTheme === 'natal' ? 'aniversario' : 'natal';
+                applyTheme(newTheme);
+            });
 
             // --- Inicialização ---
-            setAdminMode(false); // Garante que começa em modo consulta
+            setAdminMode(false);
+            applyTheme(currentTheme); 
+            renderList(); 
         });
     </script>
 </body>
 </html>
-
