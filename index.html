@@ -2,7 +2,8 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Esta linha garante que o site fique bom no celular -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lista de Presentes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,6 +13,8 @@
         body {
             font-family: 'Inter', sans-serif;
             transition: background-image 0.5s ease;
+            /* Previne rolagem horizontal em telas pequenas */
+            overflow-x: hidden; 
         }
         .star { color: #facc15; }
         input[type=number] { -moz-appearance: textfield; }
@@ -31,7 +34,7 @@
             40%, 60% { transform: translate3d(4px, 0, 0); }
         }
         
-        /* --- ESTILOS DE TEMA (CORES SUAVIZADAS) --- */
+        /* --- ESTILOS DE TEMA --- */
         body.theme-natal {
             background-color: #166534;
             background-image:
@@ -75,7 +78,7 @@
 
     <!-- Modal de Login -->
     <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
-        <div id="login-card" class="bg-gray-50 p-8 rounded-lg shadow-xl max-w-sm w-full relative">
+        <div id="login-card" class="bg-gray-50 p-8 rounded-lg shadow-xl max-w-sm w-full relative m-4">
             <button id="close-modal" class="absolute top-3 right-4 text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
             <h2 class="text-xl font-bold text-center mb-4 text-gray-900">Acesso Restrito</h2>
             <p class="text-center text-gray-500 mb-6">Insira a senha para editar a lista.</p>
@@ -102,17 +105,17 @@
         </div>
 
         <div class="flex justify-center items-center mb-6 relative">
-            <h1 class="text-3xl font-bold text-center text-gray-900">
+            <h1 class="text-2xl md:text-3xl font-bold text-center text-gray-900">
                 Minha Lista de Presentes <span id="theme-emoji"></span>
             </h1>
             <button id="admin-login-button" title="Modo Admin" class="absolute right-0 text-2xl hover:opacity-75 transition-opacity">
                 🔒
             </button>
             
-            <div class="absolute right-0 flex gap-2">
-                 <button id="theme-toggle-button" class="text-white text-sm font-medium rounded-lg px-3 py-1 transition-colors duration-200 hidden admin-primary-btn" title="Mudar Tema">
+            <div class="absolute right-0 flex flex-col sm:flex-row gap-2 items-end sm:items-center">
+                 <button id="theme-toggle-button" class="text-white text-xs sm:text-sm font-medium rounded-lg px-3 py-1 transition-colors duration-200 hidden admin-primary-btn whitespace-nowrap" title="Mudar Tema">
                  </button>
-                 <button id="logout-button" class="text-white text-sm font-medium rounded-lg px-3 py-1 transition-colors duration-200 hidden admin-primary-btn" title="Sair do modo Admin">
+                 <button id="logout-button" class="text-white text-xs sm:text-sm font-medium rounded-lg px-3 py-1 transition-colors duration-200 hidden admin-primary-btn" title="Sair do modo Admin">
                     Sair
                 </button>
             </div>
@@ -129,11 +132,11 @@
                     <label for="gift-link" class="block text-sm font-medium mb-1 text-gray-600">Link do Produto</label>
                     <input type="url" id="gift-link" placeholder="https://..." class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 theme-focus-ring">
                 </div>
-                <div class="md:col-span-2">
+                <div class="col-span-1 md:col-span-2">
                     <label for="gift-price" class="block text-sm font-medium mb-1 text-gray-600">Valor (R$)</label>
                     <input type="number" id="gift-price" min="0" step="0.01" placeholder="100.00" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 theme-focus-ring">
                 </div>
-                <div class="md:col-span-2">
+                <div class="col-span-1 md:col-span-2">
                     <label for="gift-stars" class="block text-sm font-medium mb-1 text-gray-600">Estrelas</label>
                     <select id="gift-stars" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 theme-focus-ring">
                         <option value="5">5 ★</option>
@@ -143,22 +146,22 @@
                         <option value="1">1 ★</option>
                     </select>
                 </div>
-                <button type="submit" class="md:col-span-2 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200 h-10 admin-primary-btn">
+                <button type="submit" class="col-span-2 md:col-span-2 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200 h-10 admin-primary-btn w-full">
                     Adicionar
                 </button>
             </div>
         </form>
 
         <!-- Controles de Organização -->
-        <div id="sort-controls" class="flex flex-col sm:flex-row justify-center gap-4 mb-6">
-            <button id="sort-price-asc" class="text-white font-medium rounded-lg px-5 py-2 transition-colors duration-200 w-full sm:w-auto theme-secondary-btn">
-                Organizar por Menor Valor 🔻
+        <div id="sort-controls" class="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 mb-6">
+            <button id="sort-price-asc" class="text-white font-medium rounded-lg px-4 py-2 text-sm transition-colors duration-200 w-full sm:w-auto theme-secondary-btn">
+                Menor Valor 🔻
             </button>
-            <button id="sort-price-desc" class="text-white font-medium rounded-lg px-5 py-2 transition-colors duration-200 w-full sm:w-auto theme-secondary-btn">
-                Organizar por Maior Valor 🔺️
+            <button id="sort-price-desc" class="text-white font-medium rounded-lg px-4 py-2 text-sm transition-colors duration-200 w-full sm:w-auto theme-secondary-btn">
+                Maior Valor 🔺️
             </button>
-            <button id="sort-stars-desc" class="text-white font-medium rounded-lg px-5 py-2 transition-colors duration-200 w-full sm:w-auto theme-secondary-btn">
-                Organizar por Preferência 🌟
+            <button id="sort-stars-desc" class="text-white font-medium rounded-lg px-4 py-2 text-sm transition-colors duration-200 w-full sm:w-auto theme-secondary-btn">
+                Preferência 🌟
             </button>
         </div>
 
@@ -170,9 +173,9 @@
                         <th class="px-4 py-3 text-sm font-semibold uppercase text-gray-600">Presente</th>
                         <th class="px-4 py-3 text-sm font-semibold uppercase text-gray-600 text-center">
                             Valor
-                            <span class="block text-xs font-normal normal-case text-gray-500 leading-tight">(Aproximado)</span>
+                            <span class="block text-[10px] font-normal normal-case text-gray-500 leading-tight whitespace-nowrap">(Aprox.)</span>
                         </th>
-                        <th class="px-4 py-3 text-sm font-semibold uppercase text-gray-600">Preferência</th>
+                        <th class="px-4 py-3 text-sm font-semibold uppercase text-gray-600">Pref.</th>
                         <th class="px-4 py-3 text-sm font-semibold uppercase text-gray-600">Link</th>
                         <th id="actions-header" class="px-4 py-3 text-sm font-semibold uppercase text-center text-gray-600 hidden">Ações</th>
                     </tr>
@@ -184,9 +187,8 @@
         </div>
     </main>
 
-    <!-- IMPORTANTE: Carregando Firebase via CDN (versão Modular) -->
+    <!-- Script do Firebase -->
     <script type="module">
-        // Importando as funções necessárias do Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -205,26 +207,21 @@
 
         // =================================================================
         
-        // Inicializando o Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         
-        // Nome da coleção no banco de dados
         const GIFTS_COLLECTION = "presentes_lista_compartilhada";
-        const SETTINGS_COLLECTION = "configuracoes_lista"; // Para salvar o tema globalmente
+        const SETTINGS_COLLECTION = "configuracoes_lista"; 
 
-        // --- Variáveis e Seletores ---
         let currentSort = 'stars_desc'; 
         let isAdmin = false;
         let gifts = [];
         let currentTheme = 'natal';
 
-        // UI Elements
         const giftForm = document.getElementById('gift-form');
         const giftList = document.getElementById('gift-list');
         const loadingIndicator = document.getElementById('loading-indicator');
         
-        // Auth Elements
         const adminLoginBtn = document.getElementById('admin-login-button');
         const loginModal = document.getElementById('login-modal');
         const loginCard = document.getElementById('login-card');
@@ -235,20 +232,14 @@
         const logoutButton = document.getElementById('logout-button');
         const actionsHeader = document.getElementById('actions-header');
         
-        // Theme Elements
         const themeEmoji = document.getElementById('theme-emoji');
         const themeToggleButton = document.getElementById('theme-toggle-button');
         const sortPriceAscBtn = document.getElementById('sort-price-asc');
         const sortPriceDescBtn = document.getElementById('sort-price-desc');
         const sortStarsDescBtn = document.getElementById('sort-stars-desc');
 
-        // --- FIREBASE LOGIC ---
-
-        // 1. Função para ouvir mudanças em tempo real (Real-time Listener)
         function setupRealtimeListener() {
             loadingIndicator.classList.remove('hidden');
-            
-            // Escuta a coleção de presentes
             const giftsRef = collection(db, GIFTS_COLLECTION);
             
             onSnapshot(giftsRef, (snapshot) => {
@@ -256,88 +247,48 @@
                 snapshot.forEach((doc) => {
                     gifts.push({ ...doc.data(), id: doc.id });
                 });
-                
                 loadingIndicator.classList.add('hidden');
                 renderList();
             }, (error) => {
-                console.error("Erro ao buscar dados: ", error);
+                console.error("Erro: ", error);
                 loadingIndicator.classList.add('hidden');
-                // Se der erro (ex: config errada), avisa
-                if(error.code === 'permission-denied' || error.code === 'failed-precondition') {
-                   alert("Erro de conexão com o banco de dados. Verifique a configuração do Firebase."); 
-                }
             });
 
-            // Escuta o Tema Globalmente (opcional, para todos verem o mesmo tema)
             const settingsRef = doc(db, SETTINGS_COLLECTION, 'tema_global');
             onSnapshot(settingsRef, (docSnap) => {
                 if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    applyThemeUI(data.currentTheme);
+                    applyThemeUI(docSnap.data().currentTheme);
                 } else {
-                    // Se não existir, cria o padrão
                     applyThemeUI('natal');
                 }
             });
         }
 
-        // 2. Adicionar Presente (No Firebase)
         async function addGiftToFirebase(giftData) {
-            try {
-                await addDoc(collection(db, GIFTS_COLLECTION), giftData);
-            } catch (e) {
-                console.error("Erro ao adicionar: ", e);
-                alert("Erro ao salvar. Verifique sua conexão.");
-            }
+            try { await addDoc(collection(db, GIFTS_COLLECTION), giftData); } 
+            catch (e) { alert("Erro ao salvar."); }
         }
 
-        // 3. Remover Presente (No Firebase)
         async function removeGiftFromFirebase(id) {
-            try {
-                await deleteDoc(doc(db, GIFTS_COLLECTION, id));
-            } catch (e) {
-                console.error("Erro ao remover: ", e);
-            }
+            try { await deleteDoc(doc(db, GIFTS_COLLECTION, id)); } catch (e) {}
         }
 
-        // 4. Atualizar Tema (No Firebase)
         async function updateGlobalTheme(newTheme) {
-            try {
-                await setDoc(doc(db, SETTINGS_COLLECTION, 'tema_global'), {
-                    currentTheme: newTheme
-                });
-            } catch (e) {
-                console.error("Erro ao salvar tema: ", e);
-            }
+            try { await setDoc(doc(db, SETTINGS_COLLECTION, 'tema_global'), { currentTheme: newTheme }); } catch (e) {}
         }
-
-        // --- LÓGICA DE UI (Renderização) ---
 
         function renderList() {
             giftList.innerHTML = '';
             let sortedGifts = [...gifts]; 
 
-            if (currentSort === 'price_asc') {
-                sortedGifts.sort((a, b) => a.price - b.price);
-            } else if (currentSort === 'price_desc') {
-                sortedGifts.sort((a, b) => b.price - a.price);
-            } else if (currentSort === 'stars_desc') {
-                sortedGifts.sort((a, b) => b.stars - a.stars);
-            }
+            if (currentSort === 'price_asc') sortedGifts.sort((a, b) => a.price - b.price);
+            else if (currentSort === 'price_desc') sortedGifts.sort((a, b) => b.price - a.price);
+            else if (currentSort === 'stars_desc') sortedGifts.sort((a, b) => b.stars - a.stars);
             
-            const currencyFormatter = new Intl.NumberFormat('pt-BR', {
-                style: 'currency',
-                currency: 'BRL',
-            });
+            const currencyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
             if (gifts.length === 0) {
-                giftList.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="text-center py-8 text-gray-500">
-                            A lista está vazia... por enquanto! 🎁
-                        </td>
-                    </tr>
-                `;
+                giftList.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-gray-500">A lista está vazia! 🎁</td></tr>`;
                 return;
             }
 
@@ -349,33 +300,19 @@
                 if (gift.link) {
                     try {
                         let urlStr = gift.link.startsWith('http') ? gift.link : 'http://' + gift.link;
-                        linkCell = `
-                            <td class="px-4 py-3">
-                                <a href="${urlStr}" target="_blank" rel="noopener noreferrer" 
-                                   class="text-blue-600 hover:text-blue-800 hover:underline font-medium text-sm">
-                                    Ver Produto
-                                </a>
-                            </td>`;
-                    } catch (e) { console.log(e) }
+                        linkCell = `<td class="px-4 py-3"><a href="${urlStr}" target="_blank" class="text-blue-600 hover:underline text-sm">Ver</a></td>`;
+                    } catch (e) {}
                 }
 
                 const actionCell = `
                     <td class="px-4 py-3 text-center ${isAdmin ? '' : 'hidden'}">
-                        <button 
-                            data-id="${gift.id}" 
-                            class="remove-btn text-red-500 hover:text-red-700 font-medium transition-colors duration-200 text-sm">
-                            Remover
-                        </button>
-                    </td>
-                `;
+                        <button data-id="${gift.id}" class="remove-btn text-red-500 hover:text-red-700 font-medium text-sm">X</button>
+                    </td>`;
 
                 tr.innerHTML = `
                     <td class="px-4 py-3 font-medium text-gray-900">${gift.name}</td>
                     <td class="px-4 py-3 text-center">${currencyFormatter.format(gift.price)}</td>
-                    <td class="px-4 py-3">
-                        <span class="star text-lg">${'★'.repeat(gift.stars)}</span>
-                        <span class="text-gray-300 text-lg">${'☆'.repeat(5 - gift.stars)}</span>
-                    </td>
+                    <td class="px-4 py-3 text-center"><span class="star text-lg">${'★'.repeat(gift.stars)}</span></td>
                     ${linkCell}
                     ${actionCell}
                 `;
@@ -383,17 +320,12 @@
                 const removeBtn = tr.querySelector('.remove-btn');
                 if(removeBtn) {
                     removeBtn.addEventListener('click', () => {
-                        if(confirm('Tem certeza que deseja remover este item?')) {
-                            removeGiftFromFirebase(gift.id);
-                        }
+                        if(confirm('Remover item?')) removeGiftFromFirebase(gift.id);
                     });
                 }
-
                 giftList.appendChild(tr);
             });
         }
-
-        // --- FUNÇÕES DE TEMA ---
 
         function applyThemeUI(theme) {
             currentTheme = theme;
@@ -405,10 +337,8 @@
 
             const primaryFromNatal = ['bg-red-700', 'hover:bg-red-800'];
             const primaryFromNiver = ['bg-purple-700', 'hover:bg-purple-800'];
-            
             const secondaryFromNatal = ['bg-green-800', 'hover:bg-green-900'];
             const secondaryFromNiver = ['bg-yellow-600', 'hover:bg-yellow-700', 'btn-aniversario'];
-            
             const focusFromNatal = 'focus:ring-red-700';
             const focusFromNiver = 'focus:ring-purple-700';
 
@@ -416,41 +346,18 @@
                 document.body.classList.add('theme-natal');
                 themeEmoji.textContent = '🎄';
                 themeToggleButton.textContent = 'Mudar p/ Aniversário 🥳';
-
-                primaryBtns.forEach(btn => {
-                    btn.classList.remove(...primaryFromNiver);
-                    btn.classList.add(...primaryFromNatal);
-                });
-                secondaryBtns.forEach(btn => {
-                    btn.classList.remove(...secondaryFromNiver);
-                    btn.classList.add(...secondaryFromNatal);
-                });
-                focusRings.forEach(ring => {
-                    ring.classList.remove(focusFromNiver);
-                    ring.classList.add(focusFromNatal);
-                });
-
+                primaryBtns.forEach(btn => { btn.classList.remove(...primaryFromNiver); btn.classList.add(...primaryFromNatal); });
+                secondaryBtns.forEach(btn => { btn.classList.remove(...secondaryFromNiver); btn.classList.add(...secondaryFromNatal); });
+                focusRings.forEach(ring => { ring.classList.remove(focusFromNiver); ring.classList.add(focusFromNatal); });
             } else {
                 document.body.classList.add('theme-aniversario');
                 themeEmoji.textContent = '🥳';
                 themeToggleButton.textContent = 'Mudar p/ Natal 🎄';
-
-                primaryBtns.forEach(btn => {
-                    btn.classList.remove(...primaryFromNatal);
-                    btn.classList.add(...primaryFromNiver);
-                });
-                secondaryBtns.forEach(btn => {
-                    btn.classList.remove(...secondaryFromNatal);
-                    btn.classList.add(...secondaryFromNiver);
-                });
-                focusRings.forEach(ring => {
-                    ring.classList.remove(focusFromNatal);
-                    ring.classList.add(focusFromNiver);
-                });
+                primaryBtns.forEach(btn => { btn.classList.remove(...primaryFromNatal); btn.classList.add(...primaryFromNiver); });
+                secondaryBtns.forEach(btn => { btn.classList.remove(...secondaryFromNatal); btn.classList.add(...secondaryFromNiver); });
+                focusRings.forEach(ring => { ring.classList.remove(focusFromNatal); ring.classList.add(focusFromNiver); });
             }
         }
-
-        // --- HANDLERS ---
 
         function handleAddGift(event) {
             event.preventDefault();
@@ -459,26 +366,17 @@
             const starsInput = document.getElementById('gift-stars');
             const linkInput = document.getElementById('gift-link');
 
-            if (!nameInput.value || !priceInput.value) {
-                nameInput.reportValidity();
-                priceInput.reportValidity();
-                return;
-            }
+            if (!nameInput.value || !priceInput.value) return;
 
             const newGift = {
                 name: nameInput.value,
                 price: parseFloat(priceInput.value),
                 stars: parseInt(starsInput.value, 10),
                 link: linkInput.value.trim() || null,
-                createdAt: Date.now() // Bom para ordenação se precisar
+                createdAt: Date.now()
             };
-
             addGiftToFirebase(newGift);
-            
-            nameInput.value = '';
-            priceInput.value = '';
-            starsInput.value = '3';
-            linkInput.value = '';
+            nameInput.value = ''; priceInput.value = ''; starsInput.value = '3'; linkInput.value = '';
         }
 
         function setAdminMode(isLoggedIn) {
@@ -494,7 +392,6 @@
         function handleLogin(event) {
             event.preventDefault();
             errorMessage.classList.add('hidden');
-
             if (passwordInput.value === 'cristo') {
                 setAdminMode(true);
                 loginModal.classList.add('hidden');
@@ -506,473 +403,21 @@
             }
         }
 
-        // --- EVENT LISTENERS ---
-        adminLoginBtn.addEventListener('click', () => {
-            loginModal.classList.remove('hidden');
-            passwordInput.focus();
-        });
-        
-        closeModalBtn.addEventListener('click', () => {
-            loginModal.classList.add('hidden');
-            errorMessage.classList.add('hidden');
-            passwordInput.value = '';
-        });
-
+        adminLoginBtn.addEventListener('click', () => { loginModal.classList.remove('hidden'); passwordInput.focus(); });
+        closeModalBtn.addEventListener('click', () => { loginModal.classList.add('hidden'); errorMessage.classList.add('hidden'); passwordInput.value = ''; });
         loginForm.addEventListener('submit', handleLogin);
         logoutButton.addEventListener('click', () => setAdminMode(false));
         giftForm.addEventListener('submit', handleAddGift);
-
         sortPriceAscBtn.addEventListener('click', () => { currentSort = 'price_asc'; renderList(); });
         sortPriceDescBtn.addEventListener('click', () => { currentSort = 'price_desc'; renderList(); });
         sortStarsDescBtn.addEventListener('click', () => { currentSort = 'stars_desc'; renderList(); });
+        themeToggleButton.addEventListener('click', () => { updateGlobalTheme(currentTheme === 'natal' ? 'aniversario' : 'natal'); });
 
-        themeToggleButton.addEventListener('click', () => {
-            const newTheme = currentTheme === 'natal' ? 'aniversario' : 'natal';
-            // Atualiza no banco para todos verem
-            updateGlobalTheme(newTheme);
-        });
-
-        // --- INIT ---
         setAdminMode(false);
-        
-        // Inicia a conexão com o banco se a config não for a padrão
-        if (!firebaseConfig.apiKey.includes("SUA_API_KEY")) {
-            setupRealtimeListener();
-        } else {
-            // Modo de demonstração se não configurou ainda
-            console.log("Configure o Firebase para salvar os dados na nuvem.");
-            giftList.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-red-500 font-bold">Configure o Firebase no código para começar!</td></tr>`;
-        }
-
+        if (!firebaseConfig.apiKey.includes("SUA_API_KEY")) setupRealtimeListener();
+        else giftList.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-red-500 font-bold">⚠️ Configure o Firebase no código!</td></tr>`;
     </script>
 </body>
 </html>
 
-        body.theme-natal {
-            background-color: #166534; /* Fallback green-800 */
-            background-image:
-                url('https://www.toptal.com/designers/subtlepatterns/patterns/snow.png'),
-                repeating-linear-gradient(
-                    -45deg,
-                    #b91c1c, /* red-700 (era 600) */
-                    #b91c1c 20px,
-                    #e5e7eb 20px, /* gray-200 (era white) */
-                    #e5e7eb 40px,
-                    #166534 40px, /* green-800 (era 700) */
-                    #166534 60px
-                );
-        }
-        
-        /* Tema Aniversário (Cores mais escuras) */
-        body.theme-aniversario {
-            background-color: #9333ea; /* purple-700 */
-            background-image: repeating-linear-gradient(
-                -45deg,
-                #9333ea, /* purple-700 (era 600) */
-                #9333ea 40px,
-                #ca8a04 40px, /* yellow-600 (era 500) */
-                #ca8a04 80px
-            );
-        }
-        
-        /* Cor de texto escura para botões amarelos (Aniversário) */
-        .btn-aniversario {
-            color: #1f2937 !important; /* gray-800 */
-        }
-    </style>
-</head>
-<body class="text-gray-800 flex items-center justify-center min-h-screen p-4">
-
-    <!-- Modal de Login -->
-    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
-        <div id="login-card" class="bg-gray-50 p-8 rounded-lg shadow-xl max-w-sm w-full relative">
-            <button id="close-modal" class="absolute top-3 right-4 text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
-            <h2 class="text-xl font-bold text-center mb-4 text-gray-900">Acesso Restrito</h2>
-            <p class="text-center text-gray-500 mb-6">Insira a senha para editar a lista.</p>
-            <form id="login-form">
-                <label for="password" class="block text-sm font-medium mb-1 text-gray-600">Senha</label>
-                <input type="password" id="password" class="w-full bg-white border border-gray-300 text-gray-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 theme-focus-ring" required>
-                <p id="error-message" class="text-red-600 text-sm mt-2 text-center hidden">Senha incorreta.</p>
-                <button type="submit" class="w-full text-white font-semibold rounded-lg px-4 py-2 mt-6 transition-colors duration-200 admin-primary-btn">
-                    Entrar
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Conteúdo Principal -->
-    <main class="bg-gray-50 p-6 md:p-8 rounded-xl shadow-2xl w-full max-w-4xl">
-        
-        <div class="flex justify-center items-center mb-6 relative">
-            <h1 class="text-3xl font-bold text-center text-gray-900">
-                Minha Lista de Presentes <span id="theme-emoji"></span>
-            </h1>
-            <button id="admin-login-button" title="Modo Admin" class="absolute right-0 text-2xl hover:opacity-75 transition-opacity">
-                🔒
-            </button>
-            
-            <div class="absolute right-0 flex gap-2">
-                 <button id="theme-toggle-button" class="text-white text-sm font-medium rounded-lg px-3 py-1 transition-colors duration-200 hidden admin-primary-btn" title="Mudar Tema">
-                 </button>
-                 <button id="logout-button" class="text-white text-sm font-medium rounded-lg px-3 py-1 transition-colors duration-200 hidden admin-primary-btn" title="Sair do modo Admin">
-                    Sair
-                </button>
-            </div>
-        </div>
-
-        <!-- Formulário para Adicionar Presente -->
-        <form id="gift-form" class="mb-6 hidden">
-            <div class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
-                <div class="md:col-span-3">
-                    <label for="gift-name" class="block text-sm font-medium mb-1 text-gray-600">Presente</label>
-                    <input type="text" id="gift-name" placeholder="Ex: Fone de ouvido" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 theme-focus-ring">
-                </div>
-                <div class="md:col-span-3">
-                    <label for="gift-link" class="block text-sm font-medium mb-1 text-gray-600">Link do Produto</label>
-                    <input type="url" id="gift-link" placeholder="https://..." class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 theme-focus-ring">
-                </div>
-                <div class="md:col-span-2">
-                    <label for="gift-price" class="block text-sm font-medium mb-1 text-gray-600">Valor (R$)</label>
-                    <input type="number" id="gift-price" min="0" step="0.01" placeholder="100.00" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 theme-focus-ring">
-                </div>
-                <div class="md:col-span-2">
-                    <label for="gift-stars" class="block text-sm font-medium mb-1 text-gray-600">Estrelas</label>
-                    <select id="gift-stars" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 theme-focus-ring">
-                        <option value="5">5 ★</option>
-                        <option value="4">4 ★</option>
-                        <option value="3" selected>3 ★</option>
-                        <option value="2">2 ★</option>
-                        <option value="1">1 ★</option>
-                    </select>
-                </div>
-                <button type="submit" class="md:col-span-2 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200 h-10 admin-primary-btn">
-                    Adicionar
-                </button>
-            </div>
-        </form>
-
-        <!-- Botões de Organização -->
-        <div id="sort-controls" class="flex flex-col sm:flex-row justify-center gap-4 mb-6">
-            <button id="sort-price-asc" class="text-white font-medium rounded-lg px-5 py-2 transition-colors duration-200 w-full sm:w-auto theme-secondary-btn">
-                Organizar por Menor Valor 🔻
-            </button>
-            <button id="sort-price-desc" class="text-white font-medium rounded-lg px-5 py-2 transition-colors duration-200 w-full sm:w-auto theme-secondary-btn">
-                Organizar por Maior Valor 🔺️
-            </button>
-            <button id="sort-stars-desc" class="text-white font-medium rounded-lg px-5 py-2 transition-colors duration-200 w-full sm:w-auto theme-secondary-btn">
-                Organizar por Preferência 🌟
-            </button>
-        </div>
-
-        <!-- Tabela da Lista de Presentes -->
-        <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
-            <table class="w-full text-left" id="gift-table">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="px-4 py-3 text-sm font-semibold uppercase text-gray-600">Presente</th>
-                        <th class="px-4 py-3 text-sm font-semibold uppercase text-gray-600 text-center">
-                            Valor
-                            <span class="block text-xs font-normal normal-case text-gray-500 leading-tight">(Aproximado)</span>
-                        </th>
-                        <th class="px-4 py-3 text-sm font-semibold uppercase text-gray-600">Preferência</th>
-                        <th class="px-4 py-3 text-sm font-semibold uppercase text-gray-600">Link</th>
-                        <th id="actions-header" class="px-4 py-3 text-sm font-semibold uppercase text-center text-gray-600 hidden">Ações</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200" id="gift-list">
-                    <!-- Itens da lista serão inseridos aqui -->
-                </tbody>
-            </table>
-        </div>
-
-    </main>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- Constantes de Armazenamento ---
-            const GIFTS_STORAGE_KEY = 'minhaListaDePresentesNatal';
-            const THEME_STORAGE_KEY = 'minhaListaDePresentesTheme';
-
-            // --- Seletores do DOM ---
-            const giftForm = document.getElementById('gift-form');
-            const giftList = document.getElementById('gift-list');
-            const sortPriceAscBtn = document.getElementById('sort-price-asc');
-            const sortPriceDescBtn = document.getElementById('sort-price-desc');
-            const sortStarsDescBtn = document.getElementById('sort-stars-desc');
-            
-            // Admin
-            const adminLoginBtn = document.getElementById('admin-login-button');
-            const loginModal = document.getElementById('login-modal');
-            const loginCard = document.getElementById('login-card');
-            const closeModalBtn = document.getElementById('close-modal');
-            const loginForm = document.getElementById('login-form');
-            const passwordInput = document.getElementById('password');
-            const errorMessage = document.getElementById('error-message');
-            const logoutButton = document.getElementById('logout-button');
-            const actionsHeader = document.getElementById('actions-header');
-
-            // --- Seletores de Tema ---
-            const themeEmoji = document.getElementById('theme-emoji');
-            const themeToggleButton = document.getElementById('theme-toggle-button');
-            const primaryBtns = document.querySelectorAll('.admin-primary-btn');
-            const secondaryBtns = document.querySelectorAll('.theme-secondary-btn');
-            const focusRings = document.querySelectorAll('.theme-focus-ring');
-
-            // --- Estado da Aplicação ---
-            let currentSort = 'stars_desc'; 
-            let isAdmin = false;
-            let gifts = loadGiftsFromStorage();
-            let currentTheme = loadThemeFromStorage();
-
-            // --- Funções de Armazenamento (Gifts) ---
-            function saveGiftsToStorage() {
-                localStorage.setItem(GIFTS_STORAGE_KEY, JSON.stringify(gifts));
-            }
-            function loadGiftsFromStorage() {
-                const giftsJSON = localStorage.getItem(GIFTS_STORAGE_KEY);
-                return giftsJSON ? JSON.parse(giftsJSON) : [];
-            }
-            
-            // --- Funções de Armazenamento (Tema) ---
-            function saveThemeToStorage() {
-                localStorage.setItem(THEME_STORAGE_KEY, currentTheme);
-            }
-            function loadThemeFromStorage() {
-                return localStorage.getItem(THEME_STORAGE_KEY) || 'natal'; // Padrão é Natal
-            }
-
-            // --- Função de Lógica de Tema (ATUALIZADA) ---
-            function applyTheme(theme) {
-                currentTheme = theme;
-                saveThemeToStorage();
-
-                document.body.classList.remove('theme-natal', 'theme-aniversario');
-
-                // Classes de Botão Primário (Admin) - MAIS ESCURAS
-                const primaryFromNatal = ['bg-red-700', 'hover:bg-red-800']; // Era 600/700
-                const primaryFromNiver = ['bg-purple-700', 'hover:bg-purple-800']; // Era 600/700
-                
-                // Classes de Botão Secundário (Sort) - MAIS ESCURAS
-                const secondaryFromNatal = ['bg-green-800', 'hover:bg-green-900']; // Era 700/800
-                const secondaryFromNiver = ['bg-yellow-600', 'hover:bg-yellow-700', 'btn-aniversario']; // Era 500/600
-                
-                // Classes de Foco (Inputs) - MAIS ESCURAS
-                const focusFromNatal = 'focus:ring-red-700'; // Era 500
-                const focusFromNiver = 'focus:ring-purple-700'; // Era 500
-
-                if (theme === 'natal') {
-                    document.body.classList.add('theme-natal');
-                    themeEmoji.textContent = '🎄';
-                    themeToggleButton.textContent = 'Modo Aniversário 🥳';
-
-                    primaryBtns.forEach(btn => {
-                        btn.classList.remove(...primaryFromNiver);
-                        btn.classList.add(...primaryFromNatal);
-                    });
-                    secondaryBtns.forEach(btn => {
-                        btn.classList.remove(...secondaryFromNiver);
-                        btn.classList.add(...secondaryFromNatal);
-                    });
-                    focusRings.forEach(ring => {
-                        ring.classList.remove(focusFromNiver);
-                        ring.classList.add(focusFromNatal);
-                    });
-
-                } else { // Aniversário
-                    document.body.classList.add('theme-aniversario');
-                    themeEmoji.textContent = '🥳';
-                    themeToggleButton.textContent = 'Modo Natal 🎄';
-
-                    primaryBtns.forEach(btn => {
-                        btn.classList.remove(...primaryFromNatal);
-                        btn.classList.add(...primaryFromNiver);
-                    });
-                    secondaryBtns.forEach(btn => {
-                        btn.classList.remove(...secondaryFromNatal);
-                        btn.classList.add(...secondaryFromNiver);
-                    });
-                    focusRings.forEach(ring => {
-                        ring.classList.remove(focusFromNatal);
-                        ring.classList.add(focusFromNiver);
-                    });
-                }
-            }
-
-
-            // --- Funções Principais da Lista ---
-            function renderList() {
-                giftList.innerHTML = '';
-                let sortedGifts = [...gifts]; 
-
-                if (currentSort === 'price_asc') {
-                    sortedGifts.sort((a, b) => a.price - b.price);
-                } else if (currentSort === 'price_desc') {
-                    sortedGifts.sort((a, b) => b.price - a.price);
-                } else if (currentSort === 'stars_desc') {
-                    sortedGifts.sort((a, b) => b.stars - a.stars);
-                }
-                
-                const currencyFormatter = new Intl.NumberFormat('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL',
-                });
-
-                sortedGifts.forEach(gift => {
-                    const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-gray-50';
-                    
-                    let linkCell = '<td class="px-4 py-3 text-gray-500">-</td>';
-                    if (gift.link) {
-                        try {
-                            let url = new URL(gift.link);
-                            linkCell = `
-                                <td class="px-4 py-3">
-                                    <a href="${url.href}" target="_blank" rel="noopener noreferrer" 
-                                       class="text-blue-600 hover:text-blue-800 hover:underline font-medium">
-                                        Ver Produto
-                                    </a>
-                                </td>`;
-                        } catch (e) {
-                             linkCell = `
-                                <td class="px-4 py-3">
-                                    <a href="http://${gift.link}" target="_blank" rel="noopener noreferrer" 
-                                       class="text-blue-600 hover:text-blue-800 hover:underline font-medium">
-                                        Ver Produto
-                                    </a>
-                                </td>`;
-                        }
-                    }
-
-                    const actionCell = `
-                        <td class="px-4 py-3 text-center ${isAdmin ? '' : 'hidden'}">
-                            <button 
-                                data-id="${gift.id}" 
-                                class="remove-btn text-red-500 hover:text-red-700 font-medium transition-colors duration-200">
-                                Remover
-                            </button>
-                        </td>
-                    `;
-
-                    tr.innerHTML = `
-                        <td class="px-4 py-3 font-medium text-gray-900">${gift.name}</td>
-                        <td class="px-4 py-3 text-center">${currencyFormatter.format(gift.price)}</td>
-                        <td class="px-4 py-3">
-                            <span class="star">${'★'.repeat(gift.stars)}</span>
-                            <span class="text-gray-400">${'☆'.repeat(5 - gift.stars)}</span>
-                        </td>
-                        ${linkCell}
-                        ${actionCell}
-                    `;
-                    
-                    tr.querySelector('.remove-btn')?.addEventListener('click', () => {
-                        removeGift(gift.id);
-                    });
-
-                    giftList.appendChild(tr);
-                });
-            }
-
-            function addGift(event) {
-                event.preventDefault();
-                const nameInput = document.getElementById('gift-name');
-                const priceInput = document.getElementById('gift-price');
-                const starsInput = document.getElementById('gift-stars');
-                const linkInput = document.getElementById('gift-link');
-
-                if (!nameInput.value || !priceInput.value) {
-                    nameInput.reportValidity();
-                    priceInput.reportValidity();
-                    return;
-                }
-
-                const newGift = {
-                    id: Date.now(),
-                    name: nameInput.value,
-                    price: parseFloat(priceInput.value),
-                    stars: parseInt(starsInput.value, 10),
-                    link: linkInput.value.trim() || null,
-                };
-
-                gifts.push(newGift);
-                
-                nameInput.value = '';
-                priceInput.value = '';
-                starsInput.value = '3';
-                linkInput.value = '';
-                
-                saveGiftsToStorage();
-                renderList();
-            }
-
-            function removeGift(id) {
-                gifts = gifts.filter(gift => gift.id !== id);
-                saveGiftsToStorage();
-                renderList();
-            }
-
-            function setSort(sortBy) {
-                currentSort = sortBy;
-                renderList();
-            }
-
-            // --- Funções de Admin/Auth ---
-            function setAdminMode(isLoggedIn) {
-                isAdmin = isLoggedIn;
-                giftForm.classList.toggle('hidden', !isLoggedIn);
-                actionsHeader.classList.toggle('hidden', !isLoggedIn);
-                adminLoginBtn.classList.toggle('hidden', isLoggedIn);
-                logoutButton.classList.toggle('hidden', !isLoggedIn);
-                themeToggleButton.classList.toggle('hidden', !isLoggedIn);
-                
-                renderList();
-            }
-
-            function handleLogin(event) {
-                event.preventDefault();
-                errorMessage.classList.add('hidden');
-
-                if (passwordInput.value === 'cristo') {
-                    setAdminMode(true);
-                    loginModal.classList.add('hidden');
-                    passwordInput.value = '';
-                } else {
-                    errorMessage.classList.remove('hidden');
-                    loginCard.classList.add('shake');
-                    setTimeout(() => loginCard.classList.remove('shake'), 500);
-                }
-            }
-
-            // --- Event Listeners ---
-            adminLoginBtn.addEventListener('click', () => {
-                loginModal.classList.remove('hidden');
-                passwordInput.focus();
-            });
-            
-            closeModalBtn.addEventListener('click', () => {
-                loginModal.classList.add('hidden');
-                errorMessage.classList.add('hidden');
-                passwordInput.value = '';
-            });
-
-            loginForm.addEventListener('submit', handleLogin);
-            logoutButton.addEventListener('click', () => setAdminMode(false));
-            giftForm.addEventListener('submit', addGift);
-
-            sortPriceAscBtn.addEventListener('click', () => setSort('price_asc'));
-            sortPriceDescBtn.addEventListener('click', () => setSort('price_desc'));
-            sortStarsDescBtn.addEventListener('click', () => setSort('stars_desc'));
-
-            themeToggleButton.addEventListener('click', () => {
-                const newTheme = currentTheme === 'natal' ? 'aniversario' : 'natal';
-                applyTheme(newTheme);
-            });
-
-            // --- Inicialização ---
-            setAdminMode(false);
-            applyTheme(currentTheme); 
-            renderList(); 
-        });
-    </script>
-</body>
-</html>
 
