@@ -2,7 +2,6 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <!-- Esta linha garante que o site fique bom no celular -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lista de Presentes</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,7 +12,6 @@
         body {
             font-family: 'Inter', sans-serif;
             transition: background-image 0.5s ease;
-            /* Previne rolagem horizontal em telas pequenas */
             overflow-x: hidden; 
         }
         .star { color: #facc15; }
@@ -121,8 +119,9 @@
             </div>
         </div>
 
-        <!-- Formulário -->
-        <form id="gift-form" class="mb-6 hidden">
+        <!-- Formulário (Agora com suporte a edição) -->
+        <form id="gift-form" class="mb-6 hidden bg-gray-100 p-4 rounded-lg border border-gray-200">
+            <h3 id="form-title" class="text-sm font-bold text-gray-500 uppercase mb-3">Adicionar Novo Item</h3>
             <div class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
                 <div class="md:col-span-3">
                     <label for="gift-name" class="block text-sm font-medium mb-1 text-gray-600">Presente</label>
@@ -146,9 +145,17 @@
                         <option value="1">1 ★</option>
                     </select>
                 </div>
-                <button type="submit" class="col-span-2 md:col-span-2 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200 h-10 admin-primary-btn w-full">
-                    Adicionar
-                </button>
+                
+                <!-- Área de botões do formulário -->
+                <div class="col-span-2 md:col-span-2 flex gap-2">
+                    <button type="submit" id="submit-btn" class="text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200 h-10 admin-primary-btn w-full">
+                        Adicionar
+                    </button>
+                    <!-- Botão cancelar (só aparece na edição) -->
+                    <button type="button" id="cancel-edit-btn" class="bg-gray-400 hover:bg-gray-500 text-white font-semibold rounded-lg px-4 py-2 transition-colors duration-200 h-10 hidden w-full">
+                        Cancelar
+                    </button>
+                </div>
             </div>
         </form>
 
@@ -197,13 +204,13 @@
         // =================================================================
         
         const firebaseConfig = {
-            apiKey: "AIzaSyCj53azIKJB29FYgUsQZY4Fw-hPjwtvkIY",
+  apiKey: "AIzaSyCj53azIKJB29FYgUsQZY4Fw-hPjwtvkIY",
   authDomain: "listapresentes-ee6fd.firebaseapp.com",
   projectId: "listapresentes-ee6fd",
   storageBucket: "listapresentes-ee6fd.firebasestorage.app",
   messagingSenderId: "231598736032",
   appId: "1:231598736032:web:93428ccb0507588f54bfc5"
-        };
+};
 
         // =================================================================
         
@@ -213,15 +220,31 @@
         const GIFTS_COLLECTION = "presentes_lista_compartilhada";
         const SETTINGS_COLLECTION = "configuracoes_lista"; 
 
+        // State
         let currentSort = 'stars_desc'; 
         let isAdmin = false;
         let gifts = [];
         let currentTheme = 'natal';
+        
+        // Edit State
+        let isEditing = false;
+        let editingId = null;
 
+        // UI Elements
         const giftForm = document.getElementById('gift-form');
+        const formTitle = document.getElementById('form-title');
+        const submitBtn = document.getElementById('submit-btn');
+        const cancelEditBtn = document.getElementById('cancel-edit-btn');
         const giftList = document.getElementById('gift-list');
         const loadingIndicator = document.getElementById('loading-indicator');
         
+        // Inputs
+        const nameInput = document.getElementById('gift-name');
+        const priceInput = document.getElementById('gift-price');
+        const starsInput = document.getElementById('gift-stars');
+        const linkInput = document.getElementById('gift-link');
+
+        // Auth & Controls
         const adminLoginBtn = document.getElementById('admin-login-button');
         const loginModal = document.getElementById('login-modal');
         const loginCard = document.getElementById('login-card');
@@ -237,6 +260,8 @@
         const sortPriceAscBtn = document.getElementById('sort-price-asc');
         const sortPriceDescBtn = document.getElementById('sort-price-desc');
         const sortStarsDescBtn = document.getElementById('sort-stars-desc');
+
+        // --- FIREBASE LOGIC ---
 
         function setupRealtimeListener() {
             loadingIndicator.classList.remove('hidden');
@@ -266,7 +291,15 @@
 
         async function addGiftToFirebase(giftData) {
             try { await addDoc(collection(db, GIFTS_COLLECTION), giftData); } 
-            catch (e) { alert("Erro ao salvar."); }
+            catch (e) { alert("Erro ao salvar. Verifique sua conexão e regras do Firebase."); }
+        }
+
+        async function updateGiftInFirebase(id, giftData) {
+            try { 
+                const giftRef = doc(db, GIFTS_COLLECTION, id);
+                await updateDoc(giftRef, giftData); 
+            } 
+            catch (e) { alert("Erro ao atualizar."); }
         }
 
         async function removeGiftFromFirebase(id) {
@@ -276,6 +309,45 @@
         async function updateGlobalTheme(newTheme) {
             try { await setDoc(doc(db, SETTINGS_COLLECTION, 'tema_global'), { currentTheme: newTheme }); } catch (e) {}
         }
+
+        // --- EDIT LOGIC ---
+
+        function startEdit(gift) {
+            isEditing = true;
+            editingId = gift.id;
+
+            // Preencher inputs
+            nameInput.value = gift.name;
+            priceInput.value = gift.price;
+            starsInput.value = gift.stars;
+            linkInput.value = gift.link || '';
+
+            // Mudar UI do form
+            submitBtn.textContent = "Salvar";
+            formTitle.textContent = "Editando Item";
+            cancelEditBtn.classList.remove('hidden');
+
+            // Levar a tela até o formulário
+            giftForm.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function cancelEdit() {
+            isEditing = false;
+            editingId = null;
+            
+            // Limpar inputs
+            nameInput.value = '';
+            priceInput.value = '';
+            starsInput.value = '3';
+            linkInput.value = '';
+
+            // Restaurar UI
+            submitBtn.textContent = "Adicionar";
+            formTitle.textContent = "Adicionar Novo Item";
+            cancelEditBtn.classList.add('hidden');
+        }
+
+        // --- RENDER ---
 
         function renderList() {
             giftList.innerHTML = '';
@@ -305,7 +377,8 @@
                 }
 
                 const actionCell = `
-                    <td class="px-4 py-3 text-center ${isAdmin ? '' : 'hidden'}">
+                    <td class="px-4 py-3 text-center ${isAdmin ? '' : 'hidden'} whitespace-nowrap">
+                        <button data-id="${gift.id}" class="edit-btn text-blue-500 hover:text-blue-700 font-medium text-sm mr-3">Editar</button>
                         <button data-id="${gift.id}" class="remove-btn text-red-500 hover:text-red-700 font-medium text-sm">X</button>
                     </td>`;
 
@@ -317,10 +390,16 @@
                     ${actionCell}
                 `;
                 
+                // Add Listeners
+                const editBtn = tr.querySelector('.edit-btn');
+                if(editBtn) {
+                    editBtn.addEventListener('click', () => startEdit(gift));
+                }
+
                 const removeBtn = tr.querySelector('.remove-btn');
                 if(removeBtn) {
                     removeBtn.addEventListener('click', () => {
-                        if(confirm('Remover item?')) removeGiftFromFirebase(gift.id);
+                        if(confirm('Remover este item da lista?')) removeGiftFromFirebase(gift.id);
                     });
                 }
                 giftList.appendChild(tr);
@@ -359,24 +438,32 @@
             }
         }
 
-        function handleAddGift(event) {
+        // --- HANDLERS ---
+
+        function handleFormSubmit(event) {
             event.preventDefault();
-            const nameInput = document.getElementById('gift-name');
-            const priceInput = document.getElementById('gift-price');
-            const starsInput = document.getElementById('gift-stars');
-            const linkInput = document.getElementById('gift-link');
 
             if (!nameInput.value || !priceInput.value) return;
 
-            const newGift = {
+            const giftData = {
                 name: nameInput.value,
                 price: parseFloat(priceInput.value),
                 stars: parseInt(starsInput.value, 10),
-                link: linkInput.value.trim() || null,
-                createdAt: Date.now()
+                link: linkInput.value.trim() || null
             };
-            addGiftToFirebase(newGift);
-            nameInput.value = ''; priceInput.value = ''; starsInput.value = '3'; linkInput.value = '';
+
+            if (isEditing && editingId) {
+                // Modo Edição
+                updateGiftInFirebase(editingId, giftData);
+                cancelEdit(); // Sai do modo edição
+            } else {
+                // Modo Adição
+                giftData.createdAt = Date.now();
+                addGiftToFirebase(giftData);
+                
+                // Reset form
+                nameInput.value = ''; priceInput.value = ''; starsInput.value = '3'; linkInput.value = '';
+            }
         }
 
         function setAdminMode(isLoggedIn) {
@@ -386,6 +473,10 @@
             adminLoginBtn.classList.toggle('hidden', isLoggedIn);
             logoutButton.classList.toggle('hidden', !isLoggedIn);
             themeToggleButton.classList.toggle('hidden', !isLoggedIn);
+            
+            // Se sair do admin enquanto edita, cancela a edição
+            if (!isLoggedIn) cancelEdit();
+            
             renderList();
         }
 
@@ -407,7 +498,9 @@
         closeModalBtn.addEventListener('click', () => { loginModal.classList.add('hidden'); errorMessage.classList.add('hidden'); passwordInput.value = ''; });
         loginForm.addEventListener('submit', handleLogin);
         logoutButton.addEventListener('click', () => setAdminMode(false));
-        giftForm.addEventListener('submit', handleAddGift);
+        giftForm.addEventListener('submit', handleFormSubmit);
+        cancelEditBtn.addEventListener('click', cancelEdit);
+        
         sortPriceAscBtn.addEventListener('click', () => { currentSort = 'price_asc'; renderList(); });
         sortPriceDescBtn.addEventListener('click', () => { currentSort = 'price_desc'; renderList(); });
         sortStarsDescBtn.addEventListener('click', () => { currentSort = 'stars_desc'; renderList(); });
